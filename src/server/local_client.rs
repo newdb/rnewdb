@@ -1,14 +1,13 @@
-use std::io::{stdin, stdout};
-use std::io::Write;
-use std::rc::Rc;
+use super::handler::{process_table_command, sql_handler, ResultHandler};
 use std::cell::RefCell;
-use ::store::table::TableManager;
-use ::store::tuple::TupleData;
-use ::store::table::AttrType;
-use ::store::tuple::gen_tuple_value;
-use ::utils::config::Config;
-use super::handler::{sql_handler, ResultHandler, process_table_command};
-
+use std::io::Write;
+use std::io::{stdin, stdout};
+use std::rc::Rc;
+use store::table::AttrType;
+use store::table::TableManager;
+use store::tuple::gen_tuple_value;
+use store::tuple::TupleData;
+use utils::config::Config;
 
 #[derive(Debug)]
 pub struct LocalClient;
@@ -25,12 +24,16 @@ impl LocalClient {
             stdout().flush().ok();
             match stdin().read_line(&mut line) {
                 Ok(n) => {
-                    line.pop();  // remove '\n'
-                    if n == 0 { continue }
-                    if line == "q" { break; }
+                    line.pop(); // remove '\n'
+                    if n == 0 {
+                        continue;
+                    }
+                    if line == "q" {
+                        break;
+                    }
                     sql.push_str(&line);
                     if let Some(';') = line.chars().rev().take(1).next() {
-                        sql.pop();  // remove ';'
+                        sql.pop(); // remove ';'
                         if let Ok(out) = process_table_command(&sql, &manager) {
                             println!("{}", out);
                         } else {
@@ -50,24 +53,24 @@ impl LocalClient {
 
 #[derive(Debug)]
 struct Process {
-    attr_desc : Vec<AttrType>,
-    attr_index : Vec<usize>,
+    attr_desc: Vec<AttrType>,
+    attr_index: Vec<usize>,
 }
 
 impl Process {
     pub fn new() -> Process {
-        Process{
-            attr_desc : Vec::new(),
-            attr_index : Vec::new(),
+        Process {
+            attr_desc: Vec::new(),
+            attr_index: Vec::new(),
         }
     }
 }
 
 impl ResultHandler for Process {
-    fn handle_error(&mut self, err_msg : String) {
+    fn handle_error(&mut self, err_msg: String) {
         println!("{}", err_msg);
     }
-    fn handle_tuple_data(&mut self, tuple_data : Option<TupleData>) {
+    fn handle_tuple_data(&mut self, tuple_data: Option<TupleData>) {
         match tuple_data {
             Some(data) => {
                 let value = gen_tuple_value(&self.attr_desc, data);
@@ -76,7 +79,7 @@ impl ResultHandler for Process {
             None => println!("end"),
         }
     }
-    fn set_tuple_info(&mut self, attr_desc : Vec<AttrType>, attr_index : Vec<usize>) {
+    fn set_tuple_info(&mut self, attr_desc: Vec<AttrType>, attr_index: Vec<usize>) {
         self.attr_desc = attr_desc;
         self.attr_index = attr_index;
     }
