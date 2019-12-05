@@ -1,0 +1,11 @@
+[package]
+name = "rnewdb"
+version = "0.1.0"
+authors = ["exfly <exflyg@gmail.com>"]
+
+[dependencies]
+libc = "0.2"
+rustc-serialize = "0.3"
+toml = "0.1.27"
+mio = "0.5"
+bytes = "0.3"
